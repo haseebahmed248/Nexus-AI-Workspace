@@ -1,0 +1,5 @@
+export const AUTH_CONSTANTS = {
+    JWT_EXPIRY: '24h',
+    SALT_ROUNDS: 10,
+    PASSWORD_MIN_LENGTH: 8
+  };
