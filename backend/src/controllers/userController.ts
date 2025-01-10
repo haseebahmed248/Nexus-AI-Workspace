@@ -55,7 +55,7 @@ export class UserController {
                 email: user.email
             });
             res.status(201).json({
-                success: false,
+                success: true,
                 data: user
             })
         }catch(e){
@@ -106,5 +106,21 @@ export class UserController {
                 })
             }
         }   
+    }
+    resetPassword: RequestHandler = async(req,res)=>{
+        try {
+            this.userService.resetRespond(req.body, req.user);
+        } catch (error) {
+            if(error instanceof ValidationError){
+                res.status(400).json({
+                    success: false,
+                    message: 'Password Field is required!'
+                })
+            }
+            res.status(500).json({
+                succues: false,
+                message: 'Internal Server Error!'
+            })
+        }
     }
 }

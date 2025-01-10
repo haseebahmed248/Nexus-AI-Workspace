@@ -5,13 +5,19 @@ import { comparePassword, generateToken, hashPassword } from "@/utils/auth";
 import { DuplicateEmailError, ValidationError } from "@/utils/error";
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from "./emailService";
+import { Cache } from "@/utils/cache";
+import { pool } from "@/workers/taskProcessor";
+import { JwtPayload } from "jsonwebtoken";
+
 
 
 export class UserService {
     private emailService!: EmailService;
+    private cache!: Cache;
 
     constructor(){
         this.emailService = new EmailService();
+        this.cache = new Cache();
     }
 
     async createUser(data: CreateUserDTO) {
@@ -73,6 +79,7 @@ export class UserService {
         if(!userFound){
             throw new ValidationError('User Not Found!');
         }
+        console.log('user found', userFound);
         const confirmUser = await comparePassword(data.password, userFound.password);
         if(!confirmUser){
             throw new ValidationError('Invalide Email/Password!');
@@ -86,6 +93,8 @@ export class UserService {
             userId: user.userId,
             action:'user_login'
         })
+        const {password, ...cacheData} = user
+        this.cache.cacheUserSession(user.userId,cacheData);
         return user;
     }
 
@@ -102,7 +111,10 @@ export class UserService {
             throw new ValidationError('User Not Found!');
         }
         const token = await generateToken(user.userId);
-        
+        await pool.run({
+            type: 'email',
+            payload: { email: data.email,token }
+        })
         //store token in DB with expire Time
         await prisma.passwordReset.create({
             data:{
@@ -111,6 +123,21 @@ export class UserService {
                 expiresAt: new Date(Date.now()+ 3600000)
             }
         })
-        await this.emailService.sendPasswordReset(data.email,token);
+        // await this.emailService.sendPasswordReset(data.email,token);
+    }
+
+    async resetRespond(data:ResetPassword, user: JwtPayload|undefined){
+        if(!data.password){
+            throw new ValidationError('Password Field is required!');
+        }
+        const password = await hashPassword(data.password);
+        await prisma.user.update({
+            where:{
+                userId: user?.userId
+            },
+            data:{
+                password: password
+            }
+        })
     }
 }

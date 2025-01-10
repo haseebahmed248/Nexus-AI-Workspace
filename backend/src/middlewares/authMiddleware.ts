@@ -1,3 +1,5 @@
+import { logger } from "@/lib/logger";
+import { Cache } from "@/utils/cache";
 import { AuthenticationError } from "@/utils/error";
 import { NextFunction, Request, Response } from "express";
 import jwt, { JwtPayload } from 'jsonwebtoken'
@@ -7,14 +9,36 @@ export const authMiddleware = async (
   res: Response,
   next: NextFunction
 ) => {
+  
   try {
     const token = req.headers.authorization?.replace('Bearer ', '');
     if (!token) throw new Error('No token provided');
 
     const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
-    req.user = decoded;
+    const cache = new Cache();
+    const data = await cache.redisClient.get(`userId:${decoded.userId}`)
+    logger.info('cache_data',{
+      data: data
+    })
+    req.user = data
     next();
   } catch (error) {
     res.status(401).json({ error: 'Authentication required' });
   }
 };
+
+export const resetSession = async(  // this need to be updated
+  req: Request,
+  res: Response,
+  next: NextFunction
+  )=>{
+    try{
+      const token = req.headers.authorization?.replace('Bearer','').replace(' ','');
+      if(!token) throw new AuthenticationError('No Token provided');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+      req.user = decoded
+      next();
+    }catch(error){
+      res.status(401).json({error: 'Authentication required'});
+    }
+}

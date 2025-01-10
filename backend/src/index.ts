@@ -3,6 +3,8 @@ import dotenv from 'dotenv'
 import router from "./api/test";
 import useRouter from "./api/user";
 import bodyParser from "body-parser";
+import cors from 'cors'
+import adminRouter from "./api/admin";
 
 
 class Server {
@@ -13,7 +15,16 @@ class Server {
         this.setupDotEnv();
         this.setupExpress();
         this.setupMiddlewares();
+        this.setupCros();
         this.setupRoutes();
+    }
+
+    private setupCros(){
+        this.app.use(cors({
+            origin: process.env.FRONTEND_URL,
+            methods: ['GET','PUT','POST', 'DELETE'],
+            credentials: true
+        }))
     }
 
     private setupDotEnv(){
@@ -32,6 +43,7 @@ class Server {
     private setupRoutes(){
         this.app.use("/", router)
         this.app.use("/api",useRouter)
+        this.app.use("/api/admin",adminRouter);
     }    
 
     public async start(){

@@ -20,3 +20,10 @@ export class AuthenticationError extends Error{
         this.name = message;
     }
 }
+
+export class ServerError extends Error{
+    constructor(message: string){
+        super(message);
+        this.name = message;
+    }
+}

@@ -25,7 +25,7 @@ model test {
 
 model User {
   id        Int      @id @default(autoincrement())
-  userId    String
+  userId    String   @unique
   email     String   @unique
   name      String
   password  String

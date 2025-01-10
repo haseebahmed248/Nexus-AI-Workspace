@@ -12,5 +12,6 @@ export enum UserRole{
 }
 
 export interface ResetPassword{
-    email: string
+    email?: string,
+    password?: string
 }

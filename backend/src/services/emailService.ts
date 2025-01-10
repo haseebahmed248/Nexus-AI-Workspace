@@ -9,12 +9,12 @@ export class EmailService {
       auth: {
         user: process.env.EMAIL_USER,  
         pass: process.env.APP_PASSWORD 
-      },
+      }
     });
   }
 
   async sendPasswordReset(email: string, token: string) {
-    const resetLink = `/reset-password?token=${token}`;
+    const resetLink = `${process.env.FRONTEND_URL}/reset-password?token=${token}`;
     
     try {
       await this.transporter.sendMail({
