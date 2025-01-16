@@ -1,6 +1,6 @@
 import {  RequestHandler } from "express";
 import { UserService } from "@/services/userService";
-import { DuplicateEmailError, ValidationError } from "@/utils/error";
+import { DuplicateError, ValidationError } from "@/utils/error";
 import { logger } from "@/lib/logger";
 
 export class UserController {
@@ -21,7 +21,7 @@ export class UserController {
                 data: user
             });
         } catch(e) {
-            if(e instanceof DuplicateEmailError) {
+            if(e instanceof DuplicateError) {
                 logger.error('Email Already Exsists');
                 res.status(409).json({
                     success: false,

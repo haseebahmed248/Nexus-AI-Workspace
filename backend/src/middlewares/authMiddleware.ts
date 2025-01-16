@@ -27,6 +27,35 @@ export const authMiddleware = async (
   }
 };
 
+export const adminAuthMiddleware = async ( 
+  req: Request,
+  res: Response,
+  next: NextFunction
+  )=>{
+    try {
+      const token = req.headers.authorization?.replace('Bearer','').replace(' ','');
+      if(!token) throw new AuthenticationError('No Token provided');
+      const decoded = jwt.verify(token, process.env.JWT_SECRET!) as JwtPayload;
+      const cache = new Cache();
+      const data = await cache.redisClient.get(`userId:${decoded.userId}`)
+      const formatedData = JSON.parse(data);
+      if(formatedData.role !== "ADMIN") throw new AuthenticationError('Not an Admin');
+      req.user = decoded
+      next();
+    } catch (error) {
+      if(error instanceof AuthenticationError){
+        res.status(401).json({
+          success: false,
+          error: error.message
+        })
+      }else{
+        res.status(401).json({
+          error: 'Authentication required'
+        })
+      }
+    }
+  }
+
 export const resetSession = async(  // this need to be updated
   req: Request,
   res: Response,

@@ -2,7 +2,7 @@ import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
 import { CreateUserDTO, ResetPassword } from "@/types/user.dto";
 import { comparePassword, generateToken, hashPassword } from "@/utils/auth";
-import { DuplicateEmailError, ValidationError } from "@/utils/error";
+import { DuplicateError, ValidationError } from "@/utils/error";
 import { v4 as uuidv4 } from 'uuid';
 import { EmailService } from "./emailService";
 import { Cache } from "@/utils/cache";
@@ -40,7 +40,7 @@ export class UserService {
             }
         })
         if(checkDuplicate != null){
-            throw new DuplicateEmailError("Email Already Exsist")
+            throw new DuplicateError("Email Already Exsist")
             
         }
         const hashedPassword = await hashPassword(data.password);

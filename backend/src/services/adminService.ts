@@ -1,9 +1,9 @@
 import { prisma } from "@/lib/prisma";
 import { CreateAdmin } from "@/types/admin.dto";
 import { hashPassword } from "@/utils/auth";
-import {  DuplicateEmailError, ValidationError } from "@/utils/error";
+import {  DuplicateError, ValidationError } from "@/utils/error";
 import {v4 as  uuidv4} from 'uuid'
-
+import { CreateWorkSpaceDTO } from "@/types/workspace.dto";
 
 export class AdminService{
 
@@ -28,7 +28,7 @@ export class AdminService{
         })
         console.log('already exsist', alreadyExsist);
         if(alreadyExsist){
-            throw new DuplicateEmailError('User already exsist with this email');
+            throw new DuplicateError('User already exsist with this email');
         }
 
         const hashedPassword = await hashPassword(data.password);
@@ -42,5 +42,24 @@ export class AdminService{
             }
         })
         return user;
+    }
+
+    async fetchUsers(){
+        const users = await prisma.user.findMany({
+            where:{
+                NOT:{
+                    role: "ADMIN"
+                }
+
+            },
+            select:{
+                email: true,
+                role: true,
+                name: true,
+                id: true,
+                createdAt: true
+            }
+        })
+        return users;
     }
 }

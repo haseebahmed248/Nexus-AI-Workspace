@@ -39,3 +39,20 @@ model passwordReset {
   token     String
   expiresAt DateTime
 }
+
+model WorkSpaces {
+  id          Int      @id @default(autoincrement())
+  name        String   @unique
+  createdBy   String
+  description String
+  createdAt   DateTime @default(now())
+  settings    Json?
+}
+
+model WorkSpaceMembers {
+  id          Int      @id @default(autoincrement())
+  userId      String
+  workspaceId Int
+  role        Role     @default(USER)
+  createdAt   DateTime @default(now())
+}
