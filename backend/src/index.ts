@@ -5,6 +5,7 @@ import useRouter from "./api/user";
 import bodyParser from "body-parser";
 import cors from 'cors'
 import adminRouter from "./api/admin";
+import teamManagerRouter from "./api/team-manager";
 
 
 class Server {
@@ -44,6 +45,7 @@ class Server {
         this.app.use("/", router)
         this.app.use("/api",useRouter)
         this.app.use("/api/admin",adminRouter);
+        this.app.use("/api/team-manager",teamManagerRouter);
     }    
 
     public async start(){
