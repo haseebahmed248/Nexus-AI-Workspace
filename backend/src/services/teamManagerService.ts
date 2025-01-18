@@ -1,8 +1,9 @@
 import { logger } from "@/lib/logger";
 import { prisma } from "@/lib/prisma";
+import { TeamManagerDTO } from "@/types/team-manager.dto";
 import { CreateUserDTO } from "@/types/user.dto";
 import { generateToken, hashPassword } from "@/utils/auth";
-import { DuplicateError, ValidationError } from "@/utils/error";
+import { DuplicateError, NotFoundError, ValidationError } from "@/utils/error";
 import { v4 as uuidv4 } from 'uuid';
 
 export class TeamManagerService{
@@ -67,5 +68,31 @@ export class TeamManagerService{
             }
         })
         return managers;
+    }
+
+    async assignWorkSpace(data: TeamManagerDTO){
+        if(!data.email){
+            throw new ValidationError('Email Is Required For Assigning');
+        }
+        if(!data.teamName){
+            throw new ValidationError('WorkSpace name is required');
+        }
+        const teamManager = await prisma.user.findFirst({
+            where:{
+                email: data.email
+            }
+        })
+        if(!teamManager){
+            throw new NotFoundError('Incorrect credentails of Team-Manager');
+        }
+        const workspace = await prisma.workSpaces.update({
+            where:{
+                name: data.teamName
+            },
+            data:{
+                assignedTo: teamManager.email
+            }
+        })
+        return workspace;
     }
 }

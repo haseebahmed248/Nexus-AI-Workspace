@@ -21,7 +21,7 @@ adminRouter.get('/getWorkSpaces', adminAuthMiddleware, workSpaceController.getWo
 
 //TeamManagers
 adminRouter.get('/getTeamManagers',adminAuthMiddleware, teamManagerController.getManager);
-
+adminRouter.put('/assignTeamManager',adminAuthMiddleware,teamManagerController.assignManager);
 
 
 export default adminRouter;

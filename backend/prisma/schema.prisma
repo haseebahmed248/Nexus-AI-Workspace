@@ -45,6 +45,7 @@ model WorkSpaces {
   id          Int      @id @default(autoincrement())
   name        String   @unique
   createdBy   String
+  assignedTo  String   @default("")
   description String
   createdAt   DateTime @default(now())
   settings    Json?

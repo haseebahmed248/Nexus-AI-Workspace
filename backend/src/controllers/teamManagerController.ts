@@ -1,6 +1,6 @@
 import { logger } from "@/lib/logger";
 import { TeamManagerService } from "@/services/teamManagerService";
-import { DuplicateError, ValidationError } from "@/utils/error";
+import { DuplicateError, NotFoundError, ValidationError } from "@/utils/error";
 import { RequestHandler } from "express";
 
 
@@ -61,6 +61,34 @@ export class TeamManagerController{
                 success: false,
                 message: 'Internal Server Error'
             })
+        }
+    }
+
+    assignManager: RequestHandler = async(req, res)=>{
+        try {
+            const data = await this.teamManagerSerivce.assignWorkSpace(req.body);
+            res.status(201).json({
+                success: true,
+                data: data
+            })
+        } catch (error) {
+            if(error instanceof ValidationError){
+                res.status(400).json({
+                    success: false,
+                    message: error.message
+                })
+            }
+            else if(error instanceof NotFoundError){
+                res.status(409).json({
+                    success: false,
+                    message: error.message
+                })
+            }else{
+                res.status(500).json({
+                    success: false,
+                    message: 'Internal Server Error'
+                })
+            }
         }
     }
 }
