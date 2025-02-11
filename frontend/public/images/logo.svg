@@ -1,0 +1,24 @@
+<svg width="40" height="50" viewBox="0 0 200 250" aria-labelledby="title desc" xmlns="http://www.w3.org/2000/svg">
+  <title id="title">NexsusHub Logo</title>
+  <desc id="desc">A modern hub logo with interconnected lines and a gradient center.</desc>
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0056b3"/>
+      <stop offset="100%" stop-color="#632CEA"/>
+    </linearGradient>
+  </defs>
+  <g>
+    <circle cx="100" cy="100" r="80" fill="none" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <circle cx="100" cy="100" r="40" fill="url(#grad)"/>
+    <!-- Lines at 0°, 45°, 90°, 135°, 180°, 225°, 270°, 315° -->
+    <line x1="100" y1="100" x2="180" y2="100" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="156.57" y2="156.57" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="100" y2="180" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="43.43" y2="156.57" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="20" y2="100" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="43.43" y2="43.43" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="100" y2="20" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+    <line x1="100" y1="100" x2="156.57" y2="43.43" stroke="#0056b3" stroke-width="10" stroke-opacity="0.7"/>
+  </g>
+  <text x="50%" y="220" text-anchor="middle" fill="#0056b3" font-size="24" font-family="Helvetica, Arial, sans-serif" font-weight="bold">NExsusHub</text>
+</svg>
