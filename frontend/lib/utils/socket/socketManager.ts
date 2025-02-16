@@ -6,7 +6,7 @@ import { getSocket } from "./socket";
 
 class SocketManager {
   private static instance: SocketManager;
-  private socket = getSocket();
+  private readonly socket = getSocket();
   private connectionState: "connected" | "disconnected" | "connecting" =
     "disconnected";
 

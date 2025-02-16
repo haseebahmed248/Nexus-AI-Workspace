@@ -11,12 +11,15 @@ import { Server as SocketServer } from "socket.io";
 import { messageHandler } from "./handlers/messageHandler";
 import { roomHandler } from "./handlers/roomHandler";
 import { logger } from "./lib/logger";
+import { UserPresenceService } from "./services/UserPresenceService";
+import { socketAuthMiddleware } from "./utils/sessionToken";
 
 class Server {
   private app!: Application;
   private PORT!: string | number;
   private server!: http.Server;
   private io!: SocketServer;
+  private presenceHandler!: UserPresenceService;
 
   constructor() {
     this.setupDotEnv();
@@ -39,7 +42,7 @@ class Server {
 
   private setupDotEnv() {
     dotenv.config();
-    this.PORT = process.env.PORT || 4000;
+    this.PORT = process.env.PORT ?? 4000;
   }
 
   private setupExpress() {
@@ -59,6 +62,7 @@ class Server {
   }
 
   private setupSocket() {
+    this.presenceHandler = new UserPresenceService();
     this.io = new SocketServer(this.server, {
       cors: {
         origin: process.env.FRONTEND_URL,
@@ -66,14 +70,17 @@ class Server {
         credentials: true,
       },
     });
+    this.io.use(socketAuthMiddleware);
     this.io.on("connection", (socket) => {
       logger.info(`Client Connected: ${socket.id}`);
+      this.presenceHandler.setUserOnline(socket.data.userId);
 
       messageHandler(this.io, socket);
       roomHandler(this.io, socket);
 
       //disconnect
       socket.on("disconnect", () => {
+        this.presenceHandler.handleSocketDisconnect(socket);
         logger.info(`client Disconnected: ${socket.id}`);
       });
     });

@@ -1,6 +1,5 @@
 import { SocketType } from "@/types/socket.types";
-import { Task } from "@/types/Work-Space";
-import { io, Socket } from "socket.io-client";
+import { io } from "socket.io-client";
 
 //Singleton instance
 let socket: SocketType | null = null;

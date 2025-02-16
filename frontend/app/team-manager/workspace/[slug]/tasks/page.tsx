@@ -1,6 +1,6 @@
 import TasksModal from "@/components/features/team-manager/Tasks/TasksModal";
 import TeamTasksTable from "@/components/features/team-manager/teamTasksTable";
-import React, { useEffect } from "react";
+import React from "react";
 
 function page() {
   return (

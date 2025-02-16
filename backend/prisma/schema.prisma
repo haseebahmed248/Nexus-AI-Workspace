@@ -25,13 +25,18 @@ model test {
 }
 
 model User {
-  id        Int      @id @default(autoincrement())
-  userId    String   @unique
-  email     String   @unique
-  name      String
-  password  String
-  role      Role     @default(USER)
-  createdAt DateTime @default(now())
+  id         Int                @id @default(autoincrement())
+  userId     String             @unique
+  email      String             @unique
+  name       String
+  password   String
+  role       Role               @default(USER)
+  isOnline   Boolean            @default(false)
+  lastSeen   DateTime           @default(now())
+  createdAt  DateTime           @default(now())
+  workspaces WorkSpaceMembers[]
+  messages   Message[]
+  rooms      RoomParticipant[]
 }
 
 model passwordReset {
@@ -42,19 +47,70 @@ model passwordReset {
 }
 
 model WorkSpaces {
-  id          Int      @id @default(autoincrement())
-  name        String   @unique
+  id          Int                @id @default(autoincrement())
+  name        String             @unique
   createdBy   String
-  assignedTo  String   @default("")
+  assignedTo  String             @default("")
   description String
-  createdAt   DateTime @default(now())
+  createdAt   DateTime           @default(now())
   settings    Json?
+  members     WorkSpaceMembers[]
 }
 
 model WorkSpaceMembers {
-  id          Int      @id @default(autoincrement())
+  id          Int        @id @default(autoincrement())
   userId      String
   workspaceId Int
-  role        Role     @default(USER)
-  createdAt   DateTime @default(now())
+  role        Role       @default(USER)
+  createdAt   DateTime   @default(now())
+  user        User       @relation(fields: [userId], references: [userId])
+  workspace   WorkSpaces @relation(fields: [workspaceId], references: [id])
+}
+
+model Room {
+  id           Int               @id @default(autoincrement())
+  roomId       String            @unique // For external reference
+  type         RoomType          @default(DIRECT)
+  createdAt    DateTime          @default(now())
+  lastActivity DateTime          @default(now())
+  messages     Message[]
+  participants RoomParticipant[]
+  workspaceId  Int? // Optional: link to workspace if needed
+}
+
+model RoomParticipant {
+  id       Int      @id @default(autoincrement())
+  roomId   String // References Room.roomId
+  userId   String // References User.userId
+  joinedAt DateTime @default(now())
+  room     Room     @relation(fields: [roomId], references: [roomId])
+  user     User     @relation(fields: [userId], references: [userId])
+
+  @@unique([roomId, userId]) // Prevent duplicate participants
+}
+
+model Message {
+  id        Int           @id @default(autoincrement())
+  messageId String        @unique // For external reference
+  content   String
+  senderId  String // References User.userId
+  roomId    String // References Room.roomId
+  status    MessageStatus @default(SENT)
+  createdAt DateTime      @default(now())
+  updatedAt DateTime      @updatedAt
+  room      Room          @relation(fields: [roomId], references: [roomId])
+  sender    User          @relation(fields: [senderId], references: [userId])
+}
+
+enum RoomType {
+  DIRECT // One-to-one chat
+  GROUP // Group chat
+  WORKSPACE // Workspace-related chat
+}
+
+enum MessageStatus {
+  SENT
+  DELIVERED
+  READ
+  FAILED
 }
