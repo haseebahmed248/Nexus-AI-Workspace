@@ -23,7 +23,6 @@ services:
     volumes:
       - ./backend:/app
       - /app/node_modules
-      - /app/entrypoint.sh
     environment:
       - FRONTEND_URL=http://frontend:3000
       - DB_HOST=postgres
