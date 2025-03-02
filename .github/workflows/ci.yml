@@ -117,14 +117,17 @@ jobs:
       
       - name: Run Unit Tests in Docker Container
         run: |
-          docker run --rm nexus-ai-backend:latest npm test -- --json --outputFile=/app/test-results.json
-          docker cp $(docker create --rm nexus-ai-backend:latest):/app/test-results.json ./test-results.json
+          docker run --rm \
+            -v ${{ github.workspace }}/backend:/app \
+            -v ${{ github.workspace }}/backend/prisma:/app/prisma \
+            nexus-ai-backend:latest npm test -- --json --outputFile=/app/test-results.json
       
       - name: Upload Backend Test Results
         uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
           path: test-results.json
+
   
   
   lint-and-sast:
