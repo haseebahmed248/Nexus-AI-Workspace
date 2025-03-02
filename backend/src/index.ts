@@ -14,7 +14,7 @@ import { logger } from "./lib/logger";
 import { UserPresenceService } from "./services/UserPresenceService";
 import { socketAuthMiddleware } from "./utils/sessionToken";
 
-class Server {
+export class Server {
   private app!: Application;
   private PORT!: string | number;
   private server!: http.Server;

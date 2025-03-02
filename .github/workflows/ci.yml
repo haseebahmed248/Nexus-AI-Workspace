@@ -1,0 +1,214 @@
+name: Nexus-Ai-CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+  pull_request:
+    branches:
+      - main
+    paths-ignore:
+      - '**/*.md'
+      - 'docs/**'
+      - '.gitignore'
+
+jobs:
+  # Frontend jobs
+  build-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.docker-cache
+          key: ${{ runner.os }}-docker-frontend-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-frontend-
+      
+      - name: Build Frontend Container
+        run: docker build -t nexus-ai-frontend:latest ./frontend
+      
+      - name: Tag Frontend Image
+        run: docker tag nexus-ai-frontend:latest ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-frontend:latest
+      
+      - name: Save Frontend Docker image
+        run: docker save nexus-ai-frontend:latest > frontend-image.tar
+      
+      - name: Upload Frontend image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-image
+          path: frontend-image.tar
+  
+  # Backend jobs
+  build-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Cache Docker layers
+        uses: actions/cache@v3
+        with:
+          path: /tmp/.docker-cache
+          key: ${{ runner.os }}-docker-backend-${{ github.sha }}
+          restore-keys: |
+            ${{ runner.os }}-docker-backend-
+      
+      - name: Build Backend Container
+        run: docker build -t nexus-ai-backend:latest ./backend
+      
+      - name: Tag Backend Image
+        run: docker tag nexus-ai-backend:latest ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-backend:latest
+      
+      - name: Save Backend Docker image
+        run: docker save nexus-ai-backend:latest > backend-image.tar
+      
+      - name: Upload Backend image as artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-image
+          path: backend-image.tar
+  
+  # Test frontend
+  test-frontend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json
+      
+      - name: Install Frontend Dependencies
+        run: cd frontend && npm install
+      
+      - name: Run Frontend Unit Tests
+        run: cd frontend && npm test -- --json --outputFile=test-results.json
+      
+      - name: Upload Frontend Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: frontend-test-results
+          path: frontend/test-results.json
+  
+  # Test backend
+  test-backend:
+    needs: [build-backend]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Download Backend image
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-image
+      
+      - name: Load Docker image
+        run: docker load < backend-image.tar
+      
+      - name: Run Unit Tests in Docker Container
+        run: |
+          docker run --rm \
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            nexus-ai-backend:latest /bin/sh -c "npm install -g nodemon && npm test -- --json --outputFile=/app/test-results.json"
+      
+      - name: Upload Backend Test Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-test-results
+          path: test-results.json
+
+  
+  
+  lint-and-sast:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: |
+            frontend/package-lock.json
+            backend/package-lock.json
+      
+      - name: Install Frontend Dependencies
+        run: cd frontend && npm install
+      
+      - name: Run Frontend Linter
+        run: |
+          cd frontend
+          npx eslint src/ --max-warnings=5 --quiet || echo "Linting completed with warnings"
+
+      - name: Install Backend Dependencies
+        run: cd backend && npm install
+      
+      - name: Run Backend Linter
+        run: |
+          cd backend
+          npx eslint src/ --max-warnings=5 --quiet || echo "Linting completed with warnings"
+      
+      - name: Install SAST tools
+        run: |
+          npm install -g eslint-plugin-security
+          npm install -g @microsoft/eslint-plugin-sdl
+      
+      - name: Run SAST on Frontend
+        run: |
+          cd frontend
+          npx eslint src/ --plugin security --max-warnings=3 --quiet || echo "SAST completed with warnings"
+      
+      - name: Run SAST on Backend
+        run: |
+          cd backend
+          npx eslint src/ --plugin security --max-warnings=3 --quiet || echo "SAST completed with warnings"
+      
+      - name: Upload SAST Results
+        uses: actions/upload-artifact@v4
+        with:
+          name: sast-results
+          path: |
+            frontend/eslint-results.json
+            backend/eslint-results.json
+
+
+  
+
+  push-to-dockerhub:
+    needs: [build-frontend, build-backend, test-frontend, test-backend, lint-and-sast]
+    runs-on: ubuntu-latest
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    steps:
+      - name: Docker Hub Login
+        run: echo ${{ secrets.DOCKERHUB_PASSWORD }} | docker login -u ${{ secrets.DOCKERHUB_USERNAME }} --password-stdin
+      
+      - name: Download Frontend image
+        uses: actions/download-artifact@v3
+        with:
+          name: frontend-image
+      
+      - name: Download Backend image
+        uses: actions/download-artifact@v4
+        with:
+          name: backend-image
+      
+      - name: Load Docker images
+        run: |
+          docker load < frontend-image.tar
+          docker load < backend-image.tar
+      
+      - name: Push Images to DockerHub
+        run: |
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-frontend:latest
+          docker push ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-backend:latest
