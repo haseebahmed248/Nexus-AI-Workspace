@@ -166,7 +166,7 @@ jobs:
           npx eslint --plugin security --plugin @microsoft/eslint-plugin-sdl --ext .js,.ts src/
       
       - name: Upload SAST Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: sast-results
           path: |
@@ -188,7 +188,7 @@ jobs:
           name: frontend-image
       
       - name: Download Backend image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend-image
       
