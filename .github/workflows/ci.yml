@@ -119,8 +119,8 @@ jobs:
         run: |
           docker run --rm \
             -v ${{ github.workspace }}/backend:/app \
-            -v ${{ github.workspace }}/backend/prisma:/app/prisma \
-            nexus-ai-backend:latest npm test -- --json --outputFile=/app/test-results.json
+            --entrypoint /bin/sh \
+            nexus-ai-backend:latest -c "chmod +x /app/entrypoint.sh && /app/entrypoint.sh && npm test -- --json --outputFile=/app/test-results.json"
       
       - name: Upload Backend Test Results
         uses: actions/upload-artifact@v4
