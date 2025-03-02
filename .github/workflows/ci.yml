@@ -41,7 +41,7 @@ jobs:
         run: docker save nexus-ai-frontend:latest > frontend-image.tar
       
       - name: Upload Frontend image as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-image
           path: frontend-image.tar
@@ -70,7 +70,7 @@ jobs:
         run: docker save nexus-ai-backend:latest > backend-image.tar
       
       - name: Upload Backend image as artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-image
           path: backend-image.tar
@@ -95,7 +95,7 @@ jobs:
         run: cd frontend && npm test -- --json --outputFile=test-results.json
       
       - name: Upload Frontend Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: frontend-test-results
           path: frontend/test-results.json
@@ -121,7 +121,7 @@ jobs:
           docker cp $(docker create --rm nexus-ai-backend:latest):/app/test-results.json ./test-results.json
       
       - name: Upload Backend Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: backend-test-results
           path: test-results.json
