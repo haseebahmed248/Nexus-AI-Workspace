@@ -108,7 +108,7 @@ jobs:
       - uses: actions/checkout@v4
       
       - name: Download Backend image
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: backend-image
       
@@ -132,26 +132,28 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       
-      - name: Setup Node.js
+      - name: Setup Frontend
         uses: actions/setup-node@v3
         with:
           node-version: '18'
           cache: 'npm'
+          cache-dependency-path: frontend/package-lock.json  
       
       - name: Install Frontend Dependencies
-        run: |
-          cd frontend
-          npm install --package-lock-only  
-          npm ci 
+        run: cd frontend && npm ci 
       
       - name: Run Frontend Linter
         run: cd frontend && npm run lint
       
+      - name: Setup Backend
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: backend/package-lock.json 
+      
       - name: Install Backend Dependencies
-        run: |
-          cd backend
-          npm install --package-lock-only
-          npm ci
+        run: cd backend && npm ci
       
       - name: Run Backend Linter
         run: cd backend && npm run lint
@@ -178,6 +180,7 @@ jobs:
           path: |
             frontend/eslint-results.json
             backend/eslint-results.json
+
 
   
 
