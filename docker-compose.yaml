@@ -1,0 +1,50 @@
+services:
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    environment:
+      - NEXTAUTH_SECRET=BANKAI
+      - NEXTAUTH_URL=http://localhost:3000
+      - NEXT_PUBLIC_API_URL=http://backend:4000
+    depends_on:
+      - backend
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    ports:
+      - "4000:4000"
+    volumes:
+      - ./backend:/app
+      - /app/node_modules
+    environment:
+      - FRONTEND_URL=http://frontend:3000
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DATABASE_URL=postgres://postgres:postgres@db:5432/
+      - EMAIL_USER=nexusai.workspacke@gmail.com
+      - APP_PASSWORD="kkhy ritm ohhc tmis"
+      - REDIS_URL=redis://redis:6379
+      - NEXTAUTH_SECRET=BANKAI
+      - JWT_SECRET=BANKAI
+      - PORT=4000
+    depends_on:
+      - db
+      - redis
+  db:
+    image: postgres
+    ports:
+      - "5432:5432"
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+  redis:
+    image: redis
+    ports:
+      - "6379:6379"
