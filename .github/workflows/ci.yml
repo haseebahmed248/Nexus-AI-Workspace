@@ -139,13 +139,19 @@ jobs:
           cache: 'npm'
       
       - name: Install Frontend Dependencies
-        run: cd frontend && npm install
+        run: |
+          cd frontend
+          npm install --package-lock-only  
+          npm ci 
       
       - name: Run Frontend Linter
         run: cd frontend && npm run lint
       
       - name: Install Backend Dependencies
-        run: cd backend && npm install
+        run: |
+          cd backend
+          npm install --package-lock-only
+          npm ci
       
       - name: Run Backend Linter
         run: cd backend && npm run lint
@@ -172,6 +178,7 @@ jobs:
           path: |
             frontend/eslint-results.json
             backend/eslint-results.json
+
   
 
   push-to-dockerhub:
