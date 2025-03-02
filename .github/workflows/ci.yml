@@ -118,9 +118,8 @@ jobs:
       - name: Run Unit Tests in Docker Container
         run: |
           docker run --rm \
-            -v ${{ github.workspace }}/backend:/app \
-            --entrypoint /bin/sh \
-            nexus-ai-backend:latest -c "chmod +x /app/entrypoint.sh && /app/entrypoint.sh && npm test -- --json --outputFile=/app/test-results.json"
+            -e DATABASE_URL=${{ secrets.DATABASE_URL }} \
+            nexus-ai-backend:latest /bin/sh -c "npm install -g nodemon && npm test -- --json --outputFile=/app/test-results.json"
       
       - name: Upload Backend Test Results
         uses: actions/upload-artifact@v4
