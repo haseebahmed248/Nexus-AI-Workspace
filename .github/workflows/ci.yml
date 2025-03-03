@@ -38,7 +38,7 @@ jobs:
         run: docker tag nexus-ai-frontend:latest ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-frontend:latest
       
       - name: Save Frontend Docker image
-        run: docker save nexus-ai-frontend:latest > frontend-image.tar
+        run: docker save ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-frontend:latest > frontend-image.tar
       
       - name: Upload Frontend image as artifact
         uses: actions/upload-artifact@v4
@@ -67,7 +67,7 @@ jobs:
         run: docker tag nexus-ai-backend:latest ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-backend:latest
       
       - name: Save Backend Docker image
-        run: docker save nexus-ai-backend:latest > backend-image.tar
+        run: docker save ${{ secrets.DOCKERHUB_USERNAME }}/nexus-ai-backend:latest > backend-image.tar
       
       - name: Upload Backend image as artifact
         uses: actions/upload-artifact@v4
@@ -112,14 +112,11 @@ jobs:
           cache: 'npm'
           cache-dependency-path: backend/package-lock.json
       
-
       - name: Install Backend Dependencies
         run: cd backend && npm install
       
       - name: Run Backend Unit Tests
         run: cd backend && npm test || echo "Tests failed but continuing pipeline"
-
-  
   
   lint-and-sast:
     runs-on: ubuntu-latest
@@ -173,10 +170,7 @@ jobs:
           path: |
             frontend/eslint-results.json
             backend/eslint-results.json
-
-
   
-
   push-to-dockerhub:
     needs: [build-frontend, build-backend, test-frontend, test-backend, lint-and-sast]
     runs-on: ubuntu-latest
