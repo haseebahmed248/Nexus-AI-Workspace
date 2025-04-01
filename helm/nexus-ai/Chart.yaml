@@ -1,0 +1,4 @@
+apiVersion: v2
+name: nexus-ai
+description: Helm chart for Nexus AI application
+version: 0.1.0

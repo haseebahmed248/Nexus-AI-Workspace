@@ -1,0 +1,27 @@
+replicaCount: 3
+
+frontend:
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"
+  env:
+    NEXTAUTH_URL: "https://nexus-ai-prod.example.com"
+
+backend:
+  resources:
+    limits:
+      cpu: "1"
+      memory: "1Gi"
+
+db:
+  resources:
+    limits:
+      cpu: "1"
+      memory: "2Gi"
+
+redis:
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "512Mi"

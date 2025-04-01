@@ -1,0 +1,57 @@
+replicaCount: 1
+
+frontend:
+  image: "nexus-ai-frontend:latest"
+  port: 3000
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"
+    requests:
+      cpu: "100m"
+      memory: "128Mi"
+  env:
+    NEXTAUTH_SECRET: "BANKAI"
+    NEXTAUTH_URL: "http://localhost:3000"
+    NEXT_PUBLIC_API_URL: "http://backend:4000"
+
+backend:
+  image: "nexus-ai-backend:latest"
+  port: 4000
+  resources:
+    limits:
+      cpu: "300m"
+      memory: "512Mi"
+    requests:
+      cpu: "150m"
+      memory: "256Mi"
+  env:
+    FRONTEND_URL: "http://frontend:3000"
+    DB_HOST: "postgres"
+    DB_PORT: "5432"
+    DATABASE_URL: "postgres://postgres:postgres@db:5432/"
+    EMAIL_USER: "nexusai.workspacke@gmail.com"
+    APP_PASSWORD: "kkhy ritm ohhc tmis"
+    REDIS_URL: "redis://redis:6379"
+    NEXTAUTH_SECRET: "BANKAI"
+    JWT_SECRET: "BANKAI"
+    PORT: "4000"
+
+db:
+  image: "postgres:latest"
+  port: 5432
+  resources:
+    limits:
+      cpu: "500m"
+      memory: "1Gi"
+  env:
+    POSTGRES_USER: "postgres"
+    POSTGRES_PASSWORD: "postgres"
+
+redis:
+  image: "redis:latest"
+  port: 6379
+  resources:
+    limits:
+      cpu: "200m"
+      memory: "256Mi"

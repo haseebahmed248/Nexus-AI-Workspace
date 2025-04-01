@@ -210,3 +210,10 @@ This confirms:
 - Log analysis script works
 
 
+## GitOps Workflow with Argo CD
+
+### Setup
+1. Install Argo CD:
+   ```bash
+   kubectl create namespace argocd
+   kubectl apply -n argocd -f https://raw.githubusercontent.com/argoproj/argo-cd/stable/manifests/install.yaml
