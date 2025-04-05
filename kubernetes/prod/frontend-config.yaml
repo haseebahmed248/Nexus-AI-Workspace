@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: prod
+data:
+  NEXT_PUBLIC_API_URL: "https://api.app.example.com"
+  NEXTAUTH_URL: "https://app.example.com" 

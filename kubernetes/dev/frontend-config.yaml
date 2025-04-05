@@ -1,0 +1,8 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: frontend-config
+  namespace: dev
+data:
+  NEXT_PUBLIC_API_URL: "http://backend.dev.svc.cluster.local:4000"
+  NEXTAUTH_URL: "http://frontend.dev.svc.cluster.local:3000" 

@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: backend-config
+  namespace: prod
+data:
+  FRONTEND_URL: "https://app.example.com"
+  DB_HOST: "postgres.prod.svc.cluster.local"
+  DB_PORT: "5432"
+  DATABASE_URL: "postgres://postgres:postgres@postgres.prod.svc.cluster.local:5432/postgres"
+  REDIS_URL: "redis://redis.prod.svc.cluster.local:6379"
+  PORT: "4000" 
